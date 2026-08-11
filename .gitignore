@@ -5,3 +5,4 @@ outputs/uploads/
 .agents/
 skills-lock.json
 .env
+outputs/search/
