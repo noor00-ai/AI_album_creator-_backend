@@ -2,8 +2,7 @@ import os
 import csv
 import numpy as np
 
-from embedding_engine import EmbeddingEngine
-
+from src.search.embedding_engine import EmbeddingEngine
 
 IMAGE_ROOT = "data/raw/images"
 OUTPUT_DIR = "outputs/search"

@@ -399,6 +399,93 @@ async def search_by_image(
 
 
 # ============================================================
+# METADATA-BASED IMAGE SEARCH
+# ============================================================
+
+@app.get("/search-by-metadata")
+def search_by_metadata(
+    latitude: float | None = Query(
+        None,
+        description="Latitude to search near (-90 to 90)"
+    ),
+
+    longitude: float | None = Query(
+        None,
+        description="Longitude to search near (-180 to 180)"
+    ),
+
+    id: str | None = Query(
+        None,
+        description="Image metadata ID/path, filename, or filename stem"
+    ),
+
+    top_k: int = Query(
+        1,
+        ge=1,
+        le=20,
+        description="Number of closest images to return"
+    )
+):
+    """
+    Search images using metadata from data/raw/metadata.csv.
+
+    You can provide any one, any two, or all three:
+    latitude, longitude and id.
+
+    Examples:
+    - /search-by-metadata?latitude=40.71455&longitude=-74.007118
+    - /search-by-metadata?latitude=40.71455
+    - /search-by-metadata?longitude=-74.007118
+    - /search-by-metadata?id=38/e2/6343684939.jpg
+    - /search-by-metadata?id=6343684939
+    - /search-by-metadata?latitude=40.71455&id=6343684939
+    """
+
+    if (
+        latitude is None
+        and longitude is None
+        and id is None
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Provide at least one of latitude, longitude or id."
+        )
+
+    try:
+
+        results = image_search.search_by_metadata(
+            latitude=latitude,
+            longitude=longitude,
+            image_id=id,
+            top_k=top_k
+        )
+
+        return {
+            "query_type": "metadata",
+            "query": {
+                "latitude": latitude,
+                "longitude": longitude,
+                "id": id
+            },
+            "results": results
+        }
+
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+
+# ============================================================
 # HEALTH CHECK
 # ============================================================
 
